@@ -1,0 +1,252 @@
+﻿@*@model IEnumerable<WebTest2.Models.list_module_name_table>*@
+@model WebTest2.Models.listModuleName
+@{
+    ViewBag.Title = "Index";
+}
+@Html.Raw(TempData["msg"])
+<h2>Module List</h2>
+
+@*<button type="button" class="btn btn-light">@Html.ActionLink("Add New Module", "add_new_module")</button>*@
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModule">Add New Module</button>
+<br>
+<br>
+
+@if (TempData["Message"] != null && TempData["Status"].ToString() == "true")
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["Message"].ToString()
+    </div>
+}
+
+<div class="container-fluid" id="module_box">
+    <div class="row">
+        @try
+        {
+            foreach (var item in Model.list_Module_Name_Tables)
+            {
+
+
+                <div class="col-md-4 col-xl-3">
+                    <div class="card bg-c-blue order-card">
+                        <div class="card-block">
+                            <h4 class="m-b-20" id="module_name">@Html.DisplayFor(modelItem => item.name_of_module)</h4>
+                            <p class="m-b-0">
+                                <span class="f-right">
+                                    @Html.ActionLink("Go", "RTM", "RTM", new { id = item.module_id, module_name = item.name_of_module }, new { @class = "text-dark" })
+                                    <a href="#editModule" id="edit_mname" data-module-id="@Html.DisplayFor(modelItem => item.module_id)" data-modulename-id="@Html.DisplayFor(modelItem => item.name_of_module)" class="text-dark" data-toggle="modal">Edit</a>
+                                    <a href="#" name="del_mn" id="del_mn" class="text-dark" onclick='delmn("@item.name_of_module","@item.module_id");'>Del</a>
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            }
+        }
+        catch (Exception ex)
+        {
+            <label>@ex.Message</label>
+        }
+    </div>
+</div>
+
+@*add module
+*@
+@using (Ajax.BeginForm("Add_Module_name", "Landing", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ajaxAddSuccess(data);", OnFailure = "ajaxAddUnSuccess(data);" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="modal fade" id="addModule" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form id="addNewModule">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add New Module</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="modal-body">
+                        <div class="form-group">
+                            @Html.EditorFor(x => x.list_Module_Name_.name_of_module, new { htmlAttributes = new { @class = "form-control", @id = "name_of_module", @name = "name_of_module", @maxlength = 50, @placeholder = "Add Module Name" } })
+                            @Html.ValidationMessageFor(x => x.list_Module_Name_.name_of_module, "", new { @class = "text-danger", @id = "validateAdd" })
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Submit" id="btnSave" class="btn btn-primary" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+@*edit module
+*@
+@using (Ajax.BeginForm("Edit_Module_name", "Landing", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ajaxEditSuccess(data);", OnFailure = "ajaxEditUnSuccess(data);" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="modal fade" id="editModule" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form id="editNewModule">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edit Module <label name="module_name_rt" id="module_name_rt" class="control-label" /></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <div class="modal-body">
+                        <div class="form-group">
+                            @Html.EditorFor(x => x.list_Module_Name_.name_of_module, new { htmlAttributes = new { @class = "form-control", @id = "edit_name_of_module", @name = "edit_name_of_module", @maxlength = 50, @placeholder = "Edit Module Name" } })
+                            @Html.ValidationMessageFor(x => x.list_Module_Name_.name_of_module, "", new { @class = "text-danger", @id = "validateEdit" })
+                        </div>
+                    </div>
+                    <input type="hidden" name="module_id" id="module_id" value="" />
+                    <div class="modal-footer">
+                        <input type="submit" value="Submit" id="btnSave" class="btn btn-primary" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+@*render javascript*@
+@section Scripts
+{
+    <script>
+        var ajaxAddSuccess = function (data) {
+            if (data.status == "true") {
+                //debugger;
+                alert(data.message);
+                $("#module_box").load(" #module_box > *");
+                $('#addModule').modal('hide');
+            } else {
+                //debugger;
+                alert(data.message);
+            }
+        }
+
+        var ajaxAddUnSuccess = function (data) {
+            if (data.status == "true") {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+            //$("#module_box").load(" #module_box > *");
+            //$('#editModule').modal('hide');
+        }
+
+        var ajaxEditSuccess = function (data) {
+            if (data.status == "true") {
+                //debugger;
+                alert(data.message);
+                $("#module_box").load(" #module_box > *");
+                $('#editModule').modal('hide');
+            } else {
+                //debugger;
+                alert(data.message);
+            }
+
+        }
+
+        var ajaxEditUnSuccess = function (data) {
+            if (data.status == "true") {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+            //$("#module_box").load(" #module_box > *");
+            //$('#editModule').modal('hide');
+        }
+
+        $('#addModule').on('shown.bs.modal', function () {
+            $('#name_of_module').trigger('focus');
+            //$.validator.unobtrusive.parse("#addNewModule");
+        });
+        $("#addModule").on("hidden.bs.modal", function () {
+            $("#validateAdd").html("");
+            $("#name_of_module").val("");
+        });
+
+        //$.validator.unobtrusive.parse("#editNewModule");
+        $('#editModule').on('show.bs.modal', function (e) {
+
+            //get data-id attribute of the clicked element
+
+            var Id = $(e.relatedTarget).data('module-id');
+            var module_name = $(e.relatedTarget).data('modulename-id');
+            //debugger;
+            $(e.currentTarget).find('label[name="module_name_rt"]').text(module_name);
+            //$(e.currentTarget).find('input[name="module_name_rt"]').val(module_name);
+            $(e.currentTarget).find('input[name="module_id"]').val(Id);
+            //var data_a = $(e.currentTarget).find('input[name="module_id"]');
+            //document.getElementById('module_id').innerHTML += Id;
+        });
+        $("#editModule").on("hidden.bs.modal", function () {
+            $("#validateEdit").html("");
+            $("#edit_name_of_module").val("");
+        });
+
+        function delmn(Name, ID) {
+            //debugger;
+            var ans = confirm("Are you sure you want to delete " + Name + " ? ");
+            if (ans) {
+                $.ajax({
+                    url: "/Landing/Delete_Module_name",
+                    type: "POST",
+                    dataType: "json",
+                    data: { 'id': ID, 'module_name': Name },
+                    success: function (result) {
+                        if (result.status == "true") {
+                            alert(result.message);
+                        } else {
+                            alert(result.message);
+                        }
+                        $("#module_box").load(" #module_box > *");
+                    },
+                    error: function (jqXHR, exception) {
+                        var msg = '';
+                        if (jqXHR.status === 0) {
+                            msg = 'Not connect.\n Verify Network.';
+                        } else if (jqXHR.status == 404) {
+                            msg = 'Requested page not found. [404]';
+                        } else if (jqXHR.status == 500) {
+                            msg = 'Internal Server Error [500].';
+                        } else if (exception === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                        } else if (exception === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (exception === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else {
+                            msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        }
+
+                        alert(msg);
+                    }
+                });
+            }
+        }
+
+
+
+
+
+
+
+    </script>
+
+}
+
+
+
+
+
+

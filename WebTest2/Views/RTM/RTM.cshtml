@@ -1,0 +1,487 @@
+﻿@model WebTest2.Models.listRTM
+
+@{
+    ViewBag.Title = "RTM";
+}
+<h2>RTM Lists</h2>
+@if (TempData["MessageRTM"] != null && TempData["StatusRTM"].ToString() == "true")
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["MessageRTM"].ToString()
+    </div>
+}
+else if (TempData["MessageRTM"] != null && TempData["StatusRTM"].ToString() == "false")
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["MessageRTM"].ToString()
+    </div>
+}
+<div class="container-fluid" id="rtm_data">
+    @*<button type="button" class="btn btn-light">@Html.ActionLink("Add New RTM", "add_new_rtm", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName })</button>*@
+    @using (Ajax.BeginForm("Add_New_RTM", "RTM", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ajaxAddSuccessRTM", OnFailure = "ajaxAddUnSuccessRTM" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-row">
+            <div class="col">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(model => model.rtm_Table.req_description, "Req Description", htmlAttributes: new { @class = "control-label col-md" })
+                    <div class="col-md">
+                        @Html.EditorFor(model => model.rtm_Table.req_description, new { htmlAttributes = new { @id = "reqDes", @name = "reqDes", @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.rtm_Table.req_description, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.rtm_Table.design_specification_reference_number, "Design Spec", htmlAttributes: new { @class = "control-label col-md" })
+                    <div class="col-md">
+                        @Html.EditorFor(model => model.rtm_Table.design_specification_reference_number, new { htmlAttributes = new { @id = "designSpec", @name = "designSpec", @class = "form-control", @min = "1", @step = "1", @max = "1000" } })
+                        @Html.ValidationMessageFor(model => model.rtm_Table.design_specification_reference_number, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.rtm_Table.program_module, "Program Module", htmlAttributes: new { @class = "control-label col-md" })
+                    <div class="col-md">
+                        @Html.EditorFor(model => model.rtm_Table.program_module, new { htmlAttributes = new { @id = "proModule", @name = "proModule", @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.rtm_Table.program_module, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.rtm_Table.test_reference_number, "Test Reference", htmlAttributes: new { @class = "control-label col-md" })
+                    <div class="col-md">
+                        @Html.EditorFor(model => model.rtm_Table.test_reference_number, new { htmlAttributes = new { @id = "testRefer", @name = "testRefer", @class = "form-control", @min = "1", @step = "1", @max = "1000" } })
+                        @Html.ValidationMessageFor(model => model.rtm_Table.test_reference_number, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.rtm_Table.status, "Status", htmlAttributes: new { @class = "control-label col-md" })
+                    <div class="col-md">
+                        @Html.EditorFor(model => model.rtm_Table.status, new { htmlAttributes = new { @id = "staTus", @name = "staTus", @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.rtm_Table.status, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.rtm_Table.status_date, "Status Date", htmlAttributes: new { @class = "control-label col-md" })
+                    <div class="col-md">
+                        @Html.EditorFor(model => model.rtm_Table.status_date, new { htmlAttributes = new { @id = "statusDate", @name = "statusDate", @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.rtm_Table.status_date, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.rtm_Table.comments, "Comment", htmlAttributes: new { @class = "control-label col-md" })
+                    <div class="col-md">
+                        @Html.EditorFor(model => model.rtm_Table.comments, new { htmlAttributes = new { @id = "comMent", @name = "comMent", @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.rtm_Table.comments, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+            @if (ViewBag.Module_id != null)
+            {
+                <input type="hidden" name="module_id" id="module_id" value="@ViewBag.Module_id" />
+            }
+            else
+            {
+                @Html.EditorFor(model => model.rtm_Table.module_id, new { htmlAttributes = new { @type = "hidden", @class = "form-control", @id = "module_id" } })
+            }
+            <div class="col">
+                <div class="form-group">
+                    <label></label>
+                    <div class="col-md">
+                        <input type="submit" class="btn btn-info" value="Add" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <table class="table table-bordered table-striped" id="rtm_box">
+        <thead class="thead-light">
+            <tr>
+                <th>No.</th>
+                <th scope="col">Req.ID</th>
+                <th scope="col">Req.Description</th>
+                <th scope="col">Design Specification Reference No(s)</th>
+                <th scope="col">Program_module</th>
+                <th scope="col">Test Reference Number(s)</th>
+                <th scope="col">Status</th>
+                <th scope="col">Status Date</th>
+                <th scope="col">Comments</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @try
+            {
+                //ยังไม่แก้ใน design เรื่อง index
+                foreach (var item in Model.rtm_Tables.Select((value, i) => new { i, value }))
+                {
+                    using (Ajax.BeginForm("Edit_RTM", "RTM", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ajaxEditSuccessRTM", OnFailure = "ajaxEditUnSuccessRTM" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <tr>
+                            <td>@(item.i+1)</td>
+                            <td>@Html.DisplayFor(modelItem => item.value.req_id)</td>
+                            <td>
+                                <span>@Html.DisplayFor(modelItem => item.value.req_description)</span>
+                                @Html.EditorFor(modelItem => item.value.req_description,
+                               new
+                                    {
+                                        htmlAttributes =
+                                   new
+                                        {
+                                            @style = "display:none",
+                                            @name = "edit_reqDes",
+                                       @class = "form-control edit_reqDes",
+                                            required = "required",
+                                       @oninvalid = "this.setCustomValidity('The req_description field is required.')",
+                                       @oninput = "this.setCustomValidity('')"
+                                        }
+                               })
+
+                            </td>
+                            <td>
+                                <span>@Html.DisplayFor(modelItem => item.value.design_specification_reference_number)</span>
+                                @Html.EditorFor(modelItem => item.value.design_specification_reference_number,
+                               new
+                                    {
+                                        htmlAttributes =
+                                    new
+                                         {
+                                             @style = "display:none",
+                                             @name = "edit_designSpec",
+                                        @class = "form-control edit_designSpec",
+                                             @min = "1",
+                                             @step = "1",
+                                             @max = "1000",
+                                        required = "required",
+                                        @oninvalid = "this.setCustomValidity('Only integer numbers and maximum is 1000.')",
+                                        @oninput = "this.setCustomValidity('')"
+                                    }
+                               })
+
+                            </td>
+                            <td>
+                                <span>@Html.DisplayFor(modelItem => item.value.program_module)</span>
+                                @Html.EditorFor(modelItem => item.value.program_module,
+                               new
+                                    {
+                                        htmlAttributes =
+                                   new
+                                        {
+                                            @style = "display:none",
+                                            @name = "edit_proModule",
+                                       @class = "form-control edit_proModule",
+                                       required = "required",
+                                       @oninvalid = "this.setCustomValidity('The program_module field is required.')",
+                                       @oninput = "this.setCustomValidity('')"
+                                   }
+                               })
+
+                            </td>
+                            <td>
+                                <span>@Html.DisplayFor(modelItem => item.value.test_reference_number)</span>
+                                @Html.EditorFor(modelItem => item.value.test_reference_number,
+                               new
+                                    {
+                                        htmlAttributes =
+                                   new
+                                        {
+                                            @style = "display:none",
+                                            @name = "edit_testRefer",
+                                       @class = "form-control edit_testRefer",
+                                       @min = "1",
+                                            @step = "1",
+                                            @max = "1000",
+                                       required = "required",
+                                       @oninvalid = "this.setCustomValidity('Only integer numbers and maximum is 1000.')",
+                                       @oninput = "this.setCustomValidity('')"
+                                   }
+                               })
+
+                            </td>
+                            <td>
+                                <span>@Html.DisplayFor(modelItem => item.value.status)</span>
+                                @Html.EditorFor(modelItem => item.value.status,
+                               new
+                                    {
+                                        htmlAttributes =
+                                   new
+                                        {
+                                            @style = "display:none",
+                                            @name = "edit_staTus",
+                                       @class = "form-control edit_staTus",
+                                       required = "required",
+                                       @oninvalid = "this.setCustomValidity('The status field is required.')",
+                                       @oninput = "this.setCustomValidity('')"
+                                   }
+                               })
+
+                            </td>
+                            <td>
+                                @*<span>@Html.DisplayFor(modelItem => item.value.status_date)</span>*@
+                                <span>@Convert.ToDateTime(item.value.status_date).ToString("MM-dd-yyyy")</span>
+                                @Html.EditorFor(modelItem => item.value.status_date,
+                                   new
+                                        {
+                                            htmlAttributes = new
+                                            {
+                                       @style = "display:none",
+                                       @name = "edit_statusDate",
+                                       @class = "form-control edit_statusDate",
+                                       required = "required",
+                                       @oninvalid = "this.setCustomValidity('The status_date field is required.')",
+                                       @oninput = "this.setCustomValidity('')"
+                                   }
+                                   })
+
+                            </td>
+                            <td>
+                                <span>@Html.DisplayFor(modelItem => item.value.comments)</span>
+                                @Html.EditorFor(modelItem => item.value.comments, new { htmlAttributes = new { @style = "display:none", @name = "edit_comMent", @class = "form-control edit_comMent" } })
+
+                                @if (ViewBag.Module_id != null)
+                                {
+                                    <input type="hidden" name="module_id" class="module_id" value="@ViewBag.Module_id" />
+                                }
+                                else
+                                {
+                                    @Html.EditorFor(modelItem => item.value.module_id, new { htmlAttributes = new { @type = "hidden", @class = "form-control module_id", @name = "module_id" } })
+                                }
+                                <input type="hidden" name="req_id" class="req_id" value="@item.value.req_id" />
+                            </td>
+                            <td>
+                                <a class="Edit" href="javascript:;">Edit |</a>
+                                <button type="submit" class="btn btn-link Update" name="Update" style="display:none">Update</button>
+                                <a class="btn btn-link Cancel" href="javascript:;" style="display:none">Cancel</a>
+                                <a class="Delete" name="del_rtm" href="javascript:;" onclick='delrtm("@item.value.req_description","@item.value.req_id","@ViewBag.Module_id");'>Delete</a>
+                            </td>
+                        </tr>
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                <ladel> @ex.Message </ladel>
+            }
+        </tbody>
+    </table>
+</div>
+<p>
+    @*@Html.ActionLink("Edit", "Edit", new { id = Model.req_id }) |@Html.DisplayFor(model => model.list_module_name_table.name_of_module)*@
+    @Html.ActionLink("Back to Home Page", "Index", "Landing")
+</p>
+@*render javascript*@
+@section Scripts
+{
+    <script>
+                //$.validator.unobtrusive.parse("#edit_reqDes");
+                //$(function () {
+                //    //Remove the dummy row if data present.
+                //    if ($("#rtm_box tr").length > 2) {
+                //        $("#rtm_box tr:eq(1)").remove();
+                //    } else {
+                //        var row = $("#rtm_box tr:last-child");
+                //        row.find(".Edit").hide();
+                //        row.find(".Delete").hide();
+                //        row.find("span").html('&nbsp;');
+                //    }
+                //});
+
+
+                var ajaxAddSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        //debugger;
+                        alert(data.message);
+                        //$("#rtm_box").load(" #rtm_box > *");
+                        $("#reqDes").val("");
+                        $("#designSpec").val("");
+                        $("#proModule").val("");
+                        $("#testRefer").val("");
+                        $("#statusDate").val("");
+                        $("#staTus").val("");
+                        $("#comMent").val("");
+                        window.location.reload(false);
+                    } else {
+                        //debugger;
+                        alert(data.message);
+                        window.location.reload(false);
+                    }
+                }
+
+                var ajaxAddUnSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        alert(data.message);
+                        window.location.reload(false);
+                    } else {
+                        alert(data.message);
+                        window.location.reload(false);
+                    }
+                    //$("#module_box").load(" #module_box > *");
+                    //$('#editModule').modal('hide');
+                }
+
+                //Edit event handler.
+                $("#rtm_data").on("click", "#rtm_box .Edit", function () {
+                    var row = $(this).closest("tr");
+                    //debugger;
+                    //var form_id = $('form').attr('id');
+                    //form_id.getElementById('Update').value = 'Update';
+                    //document.getElementsByClassName('Update').setAttribute("value","Update");
+                    $("td", row).each(function () {
+                        if ($(this).find("input").length > 0) {
+                            $(this).find("input").show();
+                            $(this).find("span").hide();
+                        }
+                    });
+
+                    row.find(".Update").show();
+                    row.find(".Cancel").show();
+                    row.find(".Delete").hide();
+                    $(this).hide();
+                });
+
+                //Cancel event handler.
+                $("#rtm_data").on("click", "#rtm_box .Cancel", function () {
+                    var row = $(this).closest("tr");
+                    $("td", row).each(function () {
+                        if ($(this).find("input").length > 0) {
+                            var span = $(this).find("span");
+                            var input = $(this).find("input");
+                            input.val(span.html());
+                            span.show();
+                            input.hide();
+                        }
+                    });
+                    //document.getElementsByClassName('Update').value = 'Update';
+                    row.find(".Edit").show();
+                    row.find(".Delete").show();
+                    row.find(".Update").hide();
+                    $(this).hide();
+                    window.location.reload(false);
+                });
+
+                //$("#rtm_data").on("click", "#rtm_box .Update", function () {
+                //    var form_id = $('form').attr('id');
+                //    //debugger;
+                //    document.getElementById(form_id).submit();
+                //});
+                var ajaxEditSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        //debugger;
+                        alert(data.message);
+                        window.location.reload(false);
+                    } else {
+                        //debugger;
+                        if (data.message == "refresh") {
+                            window.location.reload(false);
+                        } else {
+                            alert(data.message);
+                            window.location.reload(false);
+                        }
+                    }
+                }
+
+                var ajaxEditUnSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        alert(data.message);
+                        window.location.reload(false);
+                    } else {
+                        if (data.message == "refresh") {
+                            window.location.reload(false);
+                        } else {
+                            alert(data.message);
+                            window.location.reload(false);
+                        }
+                    }
+                    //$("#module_box").load(" #module_box > *");
+                    //$('#editModule').modal('hide');
+                }
+
+                function delrtm(Name, ID, MID) {
+                    //debugger;
+                    var ans = confirm("Are you sure you want to delete " + Name + " ? ");
+                    if (ans) {
+                        $.ajax({
+                            url: "/RTM/Delete_RTM",
+                            type: "POST",
+                            dataType: "json",
+                            data: { 'id': ID, 'rtm_data': Name, 'mid': MID },
+                            success: function (result) {
+                                if (result.status == "true") {
+                                    alert(result.message);
+                                } else {
+                                    alert(result.message);
+                                }
+                                //$("#module_box").load(" #module_box > *");
+                                window.location.reload(false);
+                            },
+                            error: function (jqXHR, exception) {
+                                var msg = '';
+                                if (jqXHR.status === 0) {
+                                    msg = 'Not connect.\n Verify Network.';
+                                } else if (jqXHR.status == 404) {
+                                    msg = 'Requested page not found. [404]';
+                                } else if (jqXHR.status == 500) {
+                                    msg = 'Internal Server Error [500].';
+                                } else if (exception === 'parsererror') {
+                                    msg = 'Requested JSON parse failed.';
+                                } else if (exception === 'timeout') {
+                                    msg = 'Time out error.';
+                                } else if (exception === 'abort') {
+                                    msg = 'Ajax request aborted.';
+                                } else {
+                                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                                }
+                                alert(msg);
+                                window.location.reload(false);
+                            }
+                        });
+                    }
+                }
+
+                var navbar_name = document.getElementById("navbar-brand");
+                    navbar_name.innerHTML = "@ViewBag.MName";
+
+
+                const div = document.createElement('div');
+
+                div.className = 'row';
+
+                div.innerHTML = `
+                                <div class="collapse navbar-collapse" id="navbarNav">
+                                    <ul class="navbar-nav">
+                                        <li class="nav-item active">
+                                            @Html.ActionLink("RTM", "RTM", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>
+                                        <li class="nav-item">
+                                            @Html.ActionLink("Test Scenario", "Display_Factors_Items","Factors", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>
+                                         <li class="nav-item">
+                                           @Html.ActionLink("Test Case", "Display_TestCase", "TestCase", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                         </li>
+                                    </ul>
+                                </div>
+                                `;
+
+                document.getElementById('navbar').appendChild(div);
+
+
+
+
+
+    </script>
+
+}

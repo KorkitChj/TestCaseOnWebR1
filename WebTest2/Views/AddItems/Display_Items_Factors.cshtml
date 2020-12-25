@@ -1,0 +1,165 @@
+﻿@model WebTest2.Models.listItems
+
+@{
+    ViewBag.Title = "Items in factor";
+}
+
+<h2>Add New Item</h2>
+@if (TempData["MessageIF"] != null && TempData["StatusIF"].ToString() == "true")
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["MessageIF"].ToString()
+    </div>
+}
+else if (TempData["MessageIF"] != null && TempData["StatusIF"].ToString() == "false")
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["MessageIF"].ToString()
+    </div>
+}
+
+
+@using (Ajax.BeginForm("Add_New_Items_Factors", "AddItems", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ajaxAddSuccess(data);", OnFailure = "ajaxAddUnSuccess(data);" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-row">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="col-2">
+            <div class="form-group">
+                @Html.EditorFor(model => model.items_In_Factor_Table.item, new { htmlAttributes = new { @class = "form-control", @id = "items_name" } })
+                @Html.ValidationMessageFor(model => model.items_In_Factor_Table.item, "", new { @class = "text-danger" })
+                @if (ViewBag.Fnid != null)
+                {
+                    <input type="hidden" name="fn_id" id="fn_id" value="@ViewBag.Fnid" />
+                }
+                else
+                {
+                    @Html.EditorFor(model => model.items_In_Factor_Table.fn_id, new { htmlAttributes = new { @type = "hidden", @class = "form-control", @id = "fn_id" } })
+                }
+            </div>
+        </div>
+        <div class="col-1">
+            <div class="form-group">
+                <input type="submit" value="Add" class="btn btn-info" />
+            </div>
+        </div>
+    </div>
+}
+<table class="table" id="item_box">
+    <tr>
+        <th><h5>Items</h5></th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.items_In_Factor_Tables)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.item)
+            </td>
+            <td>
+                <a href="#" name="del_it" id="del_it" onclick='delit("@item.item","@item.iif_id","@ViewBag.Fnid","@ViewBag.Module_id","@ViewBag.MName");'>Delete</a>             
+            </td>
+        </tr>
+    }
+
+</table>
+<div>
+    @*Back to previous page*@
+    @if (Request.UrlReferrer != null)
+    {
+        <a class="bottomNav" onclick="history.go(-1); return false;" href="#">Back to Factors Page</a><br />
+    }
+</div>
+@*render javascript*@
+@section Scripts{
+
+    <script>
+
+        var ajaxAddSuccess = function (data) {
+            if (data.status == "true") {
+                //debugger;
+                alert(data.message);
+                $("#item_box").load(" #item_box > *");
+                $('#items_name').val('');
+            } else {
+                //debugger;
+                alert(data.message);
+                $('#items_name').val('');
+            }
+        }
+
+        var ajaxAddUnSuccess = function (data) {
+            if (data.status == "true") {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+
+        }
+
+        function delit(ITEM,IIFID, FNID, MID, MNMAE) {
+            //debugger;
+            var ans = confirm("Are you sure you want to delete " + ITEM + " ? ");
+            if (ans) {
+                $.ajax({
+                    url: "/AddItems/Delete_Items_Factors",
+                    type: "POST",
+                    dataType: "json",
+                    data: { 'id': IIFID, 'fn_id': FNID, 'module_id': MID, 'module_name': MNMAE },
+                    success: function (result) {
+                        if (result.status == "true") {
+                            alert(result.message);
+                        } else {
+                            alert(result.message);
+                        }
+                        $("#item_box").load(" #item_box > *");
+                    },
+                    error: function (jqXHR, exception) {
+                        var msg = '';
+                        if (jqXHR.status === 0) {
+                            msg = 'Not connect.\n Verify Network.';
+                        } else if (jqXHR.status == 404) {
+                            msg = 'Requested page not found. [404]';
+                        } else if (jqXHR.status == 500) {
+                            msg = 'Internal Server Error [500].';
+                        } else if (exception === 'parsererror') {
+                            msg = 'Requested JSON parse failed.';
+                        } else if (exception === 'timeout') {
+                            msg = 'Time out error.';
+                        } else if (exception === 'abort') {
+                            msg = 'Ajax request aborted.';
+                        } else {
+                            msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        }
+
+                        alert(msg);
+                    }
+                });
+            }
+        }
+
+        var navbar_name = document.getElementById("navbar-brand");
+        navbar_name.innerHTML = "@ViewBag.MName";
+
+        const div = document.createElement('div');
+
+                div.className = 'row';
+
+                div.innerHTML = `
+                                <div class="collapse navbar-collapse" id="navbarNav">
+                                    <ul class="navbar-nav">                  
+                                        <li class="nav-item active">
+                                            @Html.ActionLink("Test Scenario", "Display_Items_Factors","AddItems", new { id = @ViewBag.Fnid,module_id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>                                        
+                                    </ul>
+                                </div>
+                                `;
+
+                document.getElementById('navbar').appendChild(div);
+    </script>
+
+
+}
+

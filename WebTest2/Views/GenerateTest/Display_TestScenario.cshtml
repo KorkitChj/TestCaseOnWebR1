@@ -1,0 +1,302 @@
+﻿@model IEnumerable<WebTest2.Models.test_scenario_table>
+@using System.Text.RegularExpressions
+@{
+    ViewBag.Title = "Test Scenario";
+}
+
+<h2>Test Scenario Table</h2>
+<br>
+
+<div class="table-responsive" id="factortr">
+    <p>
+        <i>Description</i>
+    </p>
+    <table class="table table-hover table-responsive table-sm">
+        <tr>
+            @foreach (var itemdata in ViewBag.ItemData)
+            {
+                <td style="font-weight: bold;text-transform: uppercase;">@itemdata</td>
+            }
+        </tr>
+    </table>
+    <table class="table table-striped table-bordered" id="factors_table">
+        <tr>
+            <td>No.</td>
+            @foreach (var listaz in ViewBag.listaz)
+            {
+                <td style="font-weight: bold;">@listaz</td>
+            }
+            <td>Scenario</td>
+            <td></td>
+            <td>Link</td>
+        </tr>
+        @{ List<string> test3 = new List<string>();
+            //List<int> test4 = new List<int>();
+            //test4.Add(0);
+            @secondsRow(ViewBag.FactorsData, ViewBag.FactorsData, 0);
+        }
+
+        @helper secondsRow(List<string> item, List<string> item2, int item4)
+        {
+            <tr>
+                @{
+
+                    int x = 0;
+                    if (item4 != 0)
+                    {
+                        x = item4;
+                    }
+
+                    if (item2.Any())
+                    {
+                        item = item2;
+                    }
+                    //int p = 0;
+                    foreach (var factor_name in item.ToList())
+                    {
+                        if (item2.Count == 0)
+                        {
+                            break;
+                        }
+                        if (factor_name.Contains("Link"))
+                        {
+                            string[] values = factor_name.Split(',');
+                            for (int i = 0; i < values.Length; i++)
+                            {
+                                values[i] = values[i].Trim();
+                            }
+                            ++x;
+                            string resultString = Regex.Match(values[1], @"\d+").Value;
+                            string resultString2 = Regex.Match(values[2], @"\d+").Value;
+                            <td>@Html.ActionLink("TC-" + x, "Display_TestCase", "TestCase", new { id = Int32.Parse(resultString), tid = Int32.Parse(resultString2), module_name = @ViewBag.MName }, new { @class = "factor_namex" + x })</td>
+                        }
+                        if (factor_name.Contains("Edit"))
+                        {
+                            string[] values2 = factor_name.Split(',');
+                            for (int i = 0; i < values2.Length; i++)
+                            {
+                                values2[i] = values2[i].Trim();
+                            }
+                            string resultString3 = Regex.Match(values2[1], @"\d+").Value;
+                            string resultString4 = Regex.Match(values2[2], @"\d+").Value;
+                            string mid = resultString3;
+                            string tid = resultString4;
+                            //string resultString5 = Regex.Match(values2[3], @"\d+").Value;
+                            <td>
+                                @*<a href="#editScenario" id="edit_Scenarios" data-module-id="@Int32.Parse(@resultString3)" data-tid-id="@Int32.Parse(@resultString4)" data-message-id="@values2[3]" class="text-dark" data-toggle="modal">Edit</a>*@
+                                <a class="Edit" href="javascript:;">Edit</a>
+                                <a class="btn btn-link Update" href="javascript:;" data-rowId="factor_namex@(x)" data-tidx="@tid" name="Update" style="display:none">Update</a>
+                                <a class="btn btn-link Cancel" href="javascript:;" style="display:none">Cancel</a>
+                            </td>
+                        }
+                        if (factor_name == "|")
+                        {
+                            @*<td>
+                                    <a class="Edit" href="javascript:;">Edit</a>
+                                    <a class="btn btn-link Update" href="javascript;" data-rowId="factor_namex@(x)" name="Update" style="display:none">Update</a>
+                                    <a class="btn btn-link Cancel" href="javascript:;" style="display:none">Cancel</a>
+                                </td>*@
+                            item2.RemoveAt(0);
+                            @secondsRow(item, item2, x);
+                        }
+
+                        if (item2.Count != 0)
+                        {
+                            item2.RemoveAt(0);
+                        }
+                        //++p;
+                        if (factor_name != "|" && !factor_name.Contains("Edit") && !factor_name.Contains("Link"))
+                        {
+                            <td>
+                                <span>@factor_name</span>
+                                 @{string filter_index = Regex.Match(factor_name, @"^([0-9]|:)+$").Value;
+                                 }
+                                @if (filter_index != "") { 
+                                    <input type="hidden" name="factor_name" class="factor_namex@(x) form-control" value="@factor_name" style="display:none" /> 
+                                continue;
+                                }
+                                <input type="text" name="factor_name" class="factor_namex@(x) form-control" value="@factor_name" style="display:none" required />
+                            </td>
+                            //@(p == 1 ? "readonly" : "" )
+
+                        }
+
+                    }
+
+                }
+            </tr>
+        }
+
+    </table>
+</div>
+@using (Ajax.BeginForm("EditDescription", "GenerateTest", new AjaxOptions { HttpMethod = "POST", OnSuccess = "ajaxEditSuccess(data);", OnFailure = "ajaxEditUnSuccess(data);" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="modal fade" id="editScenario" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <form id="editFormScenario">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Edit Test Scenario Description <label name="messageDes" id="messageDes" class="control-label" /></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="edit_Des" name="edit_Des" maxlength=255 placeholder="Edit Test Scenario" required />
+                        </div>
+                    </div>
+                    <input type="hidden" name="module_id" id="module_id" value="" />
+                    <input type="hidden" name="t_id" id="t_id" value="" />
+                    <div class="modal-footer">
+                        <input type="submit" value="Submit" id="btnSave" class="btn btn-primary" />
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+@*render javascript*@
+@section Scripts{
+
+    <script>
+
+        $('#editScenario').on('show.bs.modal', function (e) {
+            var Id = $(e.relatedTarget).data('module-id');
+            var tid = $(e.relatedTarget).data('tid-id');
+            var message = $(e.relatedTarget).data('message-id');
+            //debugger;
+            $(e.currentTarget).find('label[name="messageDes"]').text(message);
+            $(e.currentTarget).find('input[name="module_id"]').val(Id);
+            $(e.currentTarget).find('input[name="t_id"]').val(tid);
+        });
+        $("#editScenario").on("hidden.bs.modal", function () {
+            //$("#validateEdit").html("");
+            $("#edit_Des").val("");
+        });
+        var ajaxEditSuccess = function (data) {
+            if (data.status == "true") {
+                //debugger;
+                alert(data.message);
+                $("#factors_table").load(" #factors_table > *");
+                $('#editScenario').modal('hide');
+            } else {
+                //debugger;
+                alert(data.message);
+            }
+
+        }
+        var ajaxEditUnSuccess = function (data) {
+            if (data.status == "true") {
+                alert(data.message);
+            } else {
+                alert(data.message);
+            }
+        }
+
+        //Edit event handler.
+        $("#factortr").on("click", "#factors_table .Edit", function () {
+            var row = $(this).closest("tr");
+            //debugger;
+            //var form_id = $('form').attr('id');
+            //form_id.getElementById('Update').value = 'Update';
+            //document.getElementsByClassName('Update').setAttribute("value","Update");
+            $("td", row).each(function () {
+                if ($(this).find("input").length > 0) {
+                    $(this).find("input").show();
+                    $(this).find("span").hide();
+                }
+            });
+
+            row.find(".Update").show();
+            row.find(".Cancel").show();
+            //row.find(".Delete").hide();
+            $(this).hide();
+        });
+
+        //Cancel event handler.
+        $("#factortr").on("click", "#factors_table .Cancel", function () {
+            var row = $(this).closest("tr");
+            $("td", row).each(function () {
+                if ($(this).find("input").length > 0) {
+                    var span = $(this).find("span");
+                    var input = $(this).find("input");
+                    input.val(span.html());
+                    span.show();
+                    input.hide();
+                }
+            });
+            //document.getElementsByClassName('Update').value = 'Update';
+            row.find(".Edit").show();
+            row.find(".Delete").show();
+            row.find(".Update").hide();
+            $(this).hide();
+        });
+
+        //Update event handler.
+        $("#factortr").on("click", "#factors_table .Update", function (e) {
+            //debugger;
+            var rowClass = $(this).attr("data-rowId");
+            //var rowClass2 = $(this).attr("data-mid");
+            var rowClass3 = $(this).attr("data-tidx");
+
+            var JSONresults = {};
+
+            var indexColumn = 0;
+
+            $('.' + rowClass).each(function () {
+                indexColumn++;
+                JSONresults['field_' + indexColumn] = $(this).val();
+            });
+            JSONresults.tid = rowClass3;
+            //debugger;
+            $.ajax({
+                url: "/GenerateTest/EditFactors",
+                type: "POST",
+                dataType: "json",
+                data: { model: JSON.stringify(JSONresults) },
+                success: function (data) {
+                    if (data.status == "true") {
+                        alert(data.message);
+                        $("#factors_table").load(" #factors_table > *");
+                    } else {
+                        alert(data.message);
+                    }
+
+                },
+                failure: function (errMsg) {
+                    alert(errMsg);
+                }
+            });
+        });
+
+
+
+        var navbar_name = document.getElementById("navbar-brand");
+        navbar_name.innerHTML = "@ViewBag.MName";
+
+        const div = document.createElement('div');
+
+                div.className = 'row';
+
+                div.innerHTML = `
+                                <div class="collapse navbar-collapse" id="navbarNav">
+                                    <ul class="navbar-nav">
+                                        <li class="nav-item active">
+                                            @Html.ActionLink("Test Scenario", "Display_TestScenario", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>
+                                    </ul>
+                                </div>
+                                `;
+
+                document.getElementById('navbar').appendChild(div);
+    </script>
+
+
+}
+
+
+

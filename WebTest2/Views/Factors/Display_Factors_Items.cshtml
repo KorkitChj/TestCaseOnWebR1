@@ -1,0 +1,218 @@
+﻿@{
+    ViewBag.Title = "Test Scenario";
+}
+<h2>Test Scenario</h2>
+@if (TempData["MessageTC"] != null && TempData["StatusTC"].ToString() == "true")
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["MessageTC"].ToString()
+    </div>
+}
+
+<button type="button" class="btn btn-light">@Html.ActionLink("Add New Factors", "Display_Factors", "AddFactors", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName }, new { @class = "link" })</button>
+<button type="button" class="btn btn-light">@Html.ActionLink("Generate Test Scenario", "GenerateTest", "GenerateTest", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName }, new { @class = "link" })</button>
+<button type="button" class="btn btn-light">@Html.ActionLink("Test Scenario History", "Display_TestScenario", "GenerateTest", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName }, new { @class = "link" })</button>
+<em>@ViewBag.TotalFactor Test Scenarios</em>
+<br>
+<br>
+
+
+<br>
+<br>
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <tr>
+            <td>No.</td>
+            @foreach (var listaz in ViewBag.listaz)
+            {
+                <td>@listaz</td>
+            }
+        </tr>
+        <tr>
+            @if (ViewBag.factors_name.Count != 0)
+            {
+                <td></td>
+            }
+            @{ List<int> az = new List<int>();
+                int index = 0;
+            }
+            @foreach (var factor_name in ViewBag.factors_name)
+            {
+                <td style="font-weight: bold;">@factor_name</td>
+                index++;
+                az.Add(index);
+            }
+        </tr>
+
+
+        @helper secondsRow(int rowCount, dynamic item)
+        {
+    <tr>
+        @{
+
+            int x = 0;
+            int v;
+            if (rowCount != 0)
+            {
+                v = rowCount;
+                v = v - 1;
+            }
+            else
+            {
+                v = 1;
+            }
+
+
+            List<string> test3 = new List<string>();
+            foreach (var item2 in item)
+            {
+                int status = 0;
+                var temp = item2.Split('_');
+                for (int i = x; i <= Int32.Parse(temp[2]); i++)
+                {
+                    if (i == Int32.Parse(temp[2]))
+                    {
+                        if (i == 0)
+                        {
+                            v += 1;
+                            <td>@v</td>
+                            ++v;
+                        }
+                        //<td></td>
+                        <td>@temp[1]</td>
+                        x = i + 1;
+                        //int t = i - 1;
+                        status = 1;
+                        break;
+                    }
+                    else
+                    {
+                        if (i == 0)
+                        {
+                            v += 1;
+                            <td>@v</td>
+                            ++v;
+                        }
+                        <td></td>
+                    }
+                }
+                if (status == 0)
+                {
+                    test3.Add(temp[0] + "_" + temp[1] + "_" + temp[2]);
+                }
+                int t = item.IndexOf(item2);
+                int k = 0;
+                if (item.IndexOf(item2) == item.Count - 1)
+                {
+                    //@secondsRow(v, test3);
+                    if (ViewBag.factors_name.Count == x)
+                    {
+                        @secondsRow(v, test3);
+                    }
+                    else
+                    {   
+                        k = x;
+                        while (k <= ViewBag.factors_name.Count)
+                        {
+                            if (k == ViewBag.factors_name.Count)
+                            {
+                                @secondsRow(v, test3);
+                                break;
+                            }
+                            else
+                            {
+                                <td></td>
+                            }
+                            ++k;
+                        }
+                    }
+                }
+                if (status == 1)
+                {
+                    continue;
+                }
+            }
+
+        }
+    </tr>
+        }
+
+        <tr>
+            @if (ViewBag.factors_name.Count != 0)
+            {
+                <td>1</td>
+            }
+            @{
+                int x = 0;
+                List<string> test2 = new List<string>();
+            }
+            @foreach (var item in ViewBag.factors_item)
+            {
+                int status = 0;
+                var temp = item.Split('_');
+                for (int i = x; i <= Int32.Parse(temp[2]); i++)
+                {
+                    if (i == Int32.Parse(temp[2]))
+                    {
+                        <td>@temp[1]</td>
+                        x = i + 1;
+                        status = 1;
+                        break;
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                }
+                if (status == 0)
+                {
+                    test2.Add(temp[0] + "_" + temp[1] + "_" + temp[2]);
+                }                
+                int t = ViewBag.factors_item.IndexOf(item);
+                if (ViewBag.factors_item.IndexOf(item) == ViewBag.factors_item.Count - 1)
+                {
+                   @secondsRow(0, test2);               
+                }
+                if (status == 1)
+                {
+                    continue;
+                }
+
+            }
+        </tr>
+    </table>
+</div>
+@*render javascript*@
+@section Scripts{
+
+    <script>
+        var navbar_name = document.getElementById("navbar-brand");
+        navbar_name.innerHTML = "@ViewBag.MName";
+
+        const div = document.createElement('div');
+
+                div.className = 'row';
+
+                div.innerHTML = `
+                                <div class="collapse navbar-collapse" id="navbarNav">
+                                    <ul class="navbar-nav">
+                                        <li class="nav-item ">
+                                             @Html.ActionLink("RTM", "RTM","RTM", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>
+                                        <li class="nav-item active">
+                                            @Html.ActionLink("Test Scenario", "Factors", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>
+                                         <li class="nav-item">
+                                           @Html.ActionLink("Test Case", "Display_TestCase", "TestCase", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                         </li>
+                                    </ul>
+                                </div>
+                                `;
+
+                document.getElementById('navbar').appendChild(div);
+    </script>
+
+
+}
+
+

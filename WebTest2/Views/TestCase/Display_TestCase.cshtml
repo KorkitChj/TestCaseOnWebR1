@@ -1,0 +1,440 @@
+﻿@model IEnumerable<WebTest2.Models.test_case_table>
+
+@{
+    ViewBag.Title = "TestCase";
+}
+@Html.Raw(TempData["msg"])
+
+    <div class="d-flex" id="wrapper">
+
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <div class="list-group list-group-flush">
+                @foreach (var item in Model.Select((value, i) => new { i, value }))
+                {
+                <a href="#formData@(item.i)" class="list-group-item list-group-item-action bg-light">TC-@(item.i+1)</a>
+                }
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+
+            @*<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
+            </nav>*@
+
+            <div class="container-fluid">
+                <button type="button" class="btn btn-light">@Html.ActionLink("Print PDF", "PrintPDF")</button>
+                <table class="table table-bordered table-striped table-responsive" id="testcase_box">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>No.</th>
+                            <th scope="col">Test Case</th>
+                            <th scope="col">Expected Result</th>
+                            <th scope="col">Test Round</th>
+                            <th scope="col">Result</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">TestBy</th>
+                            <th></th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @try
+                        {
+                            int i = 1;
+                            //, new AjaxOptions { HttpMethod = "POST", OnSuccess = "ajaxEditSuccessRTM", OnFailure = "ajaxEditUnSuccessRTM" }, new { enctype = "multipart/form-data" }
+                            //,FormMethod.Post,new { enctype = "multipart/form-data" }
+                            foreach (var item in Model)
+                            {
+                                using (Html.BeginForm("Add_TestCase", "TestCase", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                {
+                                    @*<div id="fromData@(item.i+1)"></div>*@
+                                    @Html.AntiForgeryToken()
+                                    <tr>
+                                        @*<td>@Html.DisplayFor(modelItem => item.test_case_id)</td>*@
+                                        <td>@(i)</td>
+                                        <td>
+                                            <span>@Html.DisplayFor(modelItem => item.factors2)</span><br>
+                                            <input type="hidden" name="factors_data" class="factors_data" value="@Html.DisplayFor(modelItem => item.factors2)" />
+                                            @Html.TextAreaFor(modelItem => item.test_case_data,
+                                           new
+                                           {
+                                               rows = "10",
+                                               cols = "50",
+                                               htmlAttributes =
+                                               new
+                                               {
+                                                   @name = "testCaseData",
+                                                   @class = "form-control testCaseData",
+                                                   @max = "255",
+                                                   required = "required",
+                                                   @oninvalid = "this.setCustomValidity('The Test Case field is required.')",
+                                                   @oninput = "this.setCustomValidity('')"
+                                               }
+                                           })
+                                            <br><br><br>                                         
+                                            <label for="img">Select Test Case image:</label>
+                                            <input type="file" id="inputFile" name="img_testCase" accept=".jpg, .jpeg, .png" @(item.path_test_case == "Null" ? "required" : "" )><br>                                 
+                                            @if(item.path_test_case != "Null")
+                                            {
+                                                <img id="image_upload_preview" src="@Url.Content(item.path_test_case)" alt="your image" />
+                                            }
+                                            else
+                                            {
+                                                <img id="image_upload_preview" src="http://placehold.it/100x100" alt="your image" />
+                                            }
+                                            
+                                            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+                                        </td>
+                                        <td>
+                                            @Html.TextAreaFor(modelItem => item.expected_result,
+                                           new
+                                           {
+                                                    rows = "10",
+                                                    cols = "50",
+                                                    htmlAttributes =
+                                                     new
+                                                     {
+                                                         @name = "expecTedResult",
+                                                    @class = "form-control expecTedResult",
+                                                    @max = "255",
+                                                    required = "required",
+                                                    @oninvalid = "this.setCustomValidity('The Expected Result field is required.')",
+                                                    @oninput = "this.setCustomValidity('')"
+                                                }
+                                            })
+                                            <br><br><br>
+                                            <label for="img">Select Expected Result image:</label>
+                                            <input type="file" id="inputFile2" name="img_Expected" accept=".jpg, .jpeg, .png" @(item.path_expected_result == "Null" ? "required" : "" )><br>
+                                            @if (item.path_expected_result != "Null")
+                                            {
+                                                <img id="image_upload_preview2" src="@Url.Content(item.path_expected_result)" alt="your image" />
+                                            }
+                                            else
+                                            {
+                                                <img id="image_upload_preview2" src="http://placehold.it/100x100" alt="your image" />
+                                            }
+
+
+                                        </td>
+                                        <td>
+                                            @Html.EditorFor(modelItem => item.test_round,
+                                           new
+                                                {
+                                                    htmlAttributes =
+                                               new
+                                                    {
+                                                        @name = "testRound",
+                                                   @class = "form-control testRound",
+                                                   required = "required",
+                                                   @max = "50",
+                                                   @oninvalid = "this.setCustomValidity('The Test Round field is required.')",
+                                                   @oninput = "this.setCustomValidity('')"
+                                               }
+                                           })
+
+                                        </td>
+                                        <td>
+                                            @Html.EditorFor(modelItem => item.result,
+                                           new
+                                                {
+                                                    htmlAttributes =
+                                               new
+                                                    {
+                                                        @name = "reSult",
+                                                   @class = "form-control reSult",
+                                                        @max = "255",
+                                                   required = "required",
+                                                   @oninvalid = "this.setCustomValidity('The Result field is required.')",
+                                                   @oninput = "this.setCustomValidity('')"
+                                               }
+                                           })
+
+                                        </td>
+                                        <td>
+                                            @Html.EditorFor(modelItem => item.date, "{0:dd/MM/yyyy}",
+                                               new
+                                                    {
+                                                        htmlAttributes = new
+                                                        {
+                                                   @name = "date",
+                                                            @class = "form-control date",
+                                                   required = "required",
+                                                   @oninvalid = "this.setCustomValidity('The Date field is required.')",
+                                                   @oninput = "this.setCustomValidity('')"
+                                               }
+                                               })
+                                        </td>
+                                        <td>
+                                            @Html.EditorFor(modelItem => item.test_by,
+                                           new
+                                                {
+                                                    htmlAttributes =
+                                               new
+                                                    {
+                                                        @name = "testBy",
+                                                   @class = "form-control testBy",
+                                                        @max = "50",
+                                                   required = "required",
+                                                   @oninvalid = "this.setCustomValidity('The Test By field is required.')",
+                                                   @oninput = "this.setCustomValidity('')"
+                                               }
+                                           })
+
+                                        </td>
+                                        <td>
+                                            @if (ViewBag.Module_id != null)
+                                            {
+                                                <input type="hidden" name="module_id" class="module_id" value="@ViewBag.Module_id" />
+                                            }
+                                            else
+                                            {
+                                                @Html.EditorFor(modelItem => item.module_id, new { htmlAttributes = new { @type = "hidden", @class = "form-control module_id", @name = "module_id" } })
+                                            }
+                                            <input type="hidden" name="test_case_id" class="test_case_id" value="@item.test_case_id" />
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="btn btn-link Update" name="Update">Submit</button>
+                                            <span id="formData@(i)"></span>
+                                        </td>
+                                        
+                                    </tr>
+                                }
+                                ++i;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            <ladel> @ex.Message </ladel>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+    
+<p>
+    @*@Html.ActionLink("Edit", "Edit", new { id = Model.req_id }) |@Html.DisplayFor(model => model.list_module_name_table.name_of_module)*@
+    @Html.ActionLink("Back to Home Page", "Index", "Landing")
+</p>
+@*render javascript*@
+@section Scripts
+{
+    <script>
+                          
+                function readURL1(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            $('#image_upload_preview').attr('src', e.target.result);
+                        }
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $("#inputFile").change(function () {
+                    readURL1(this);
+                });
+
+                function readURL2(input) {
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            $('#image_upload_preview2').attr('src', e.target.result);
+                        }
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $("#inputFile2").change(function () {
+                    readURL2(this);
+                });
+
+                               
+                 	         
+                var ajaxAddSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        //debugger;
+                        alert(data.message);
+                        //$("#rtm_box").load(" #rtm_box > *");                       
+                        window.location.reload(false);
+                    } else {
+                        //debugger;
+                        alert(data.message);
+                        window.location.reload(false);
+                    }
+                }
+
+                var ajaxAddUnSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        alert(data.message);
+                        window.location.reload(false);
+                    } else {
+                        alert(data.message);
+                        window.location.reload(false);
+                    }
+                    //$("#module_box").load(" #module_box > *");
+                    //$('#editModule').modal('hide');
+                }
+
+                //Edit event handler.
+                $("#rtm_data").on("click", "#rtm_box .Edit", function () {
+                    var row = $(this).closest("tr");
+                    //debugger;
+                    //var form_id = $('form').attr('id');
+                    //form_id.getElementById('Update').value = 'Update';
+                    //document.getElementsByClassName('Update').setAttribute("value","Update");
+                    $("td", row).each(function () {
+                        if ($(this).find("input").length > 0) {
+                            $(this).find("input").show();
+                            $(this).find("span").hide();
+                        }
+                    });
+
+                    row.find(".Update").show();
+                    row.find(".Cancel").show();
+                    row.find(".Delete").hide();
+                    $(this).hide();
+                });
+
+                //Cancel event handler.
+                $("#rtm_data").on("click", "#rtm_box .Cancel", function () {
+                    var row = $(this).closest("tr");
+                    $("td", row).each(function () {
+                        if ($(this).find("input").length > 0) {
+                            var span = $(this).find("span");
+                            var input = $(this).find("input");
+                            input.val(span.html());
+                            span.show();
+                            input.hide();
+                        }
+                    });
+                    //document.getElementsByClassName('Update').value = 'Update';
+                    row.find(".Edit").show();
+                    row.find(".Delete").show();
+                    row.find(".Update").hide();
+                    $(this).hide();
+                });
+
+                //$("#rtm_data").on("click", "#rtm_box .Update", function () {
+                //    var form_id = $('form').attr('id');
+                //    //debugger;
+                //    document.getElementById(form_id).submit();
+                //});
+                var ajaxEditSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        //debugger;
+                        alert(data.message);
+                        window.location.reload(false);
+                    } else {
+                        //debugger;
+                        if (data.message == "refresh") {
+                            window.location.reload(false);
+                        } else {
+                            alert(data.message);
+                            window.location.reload(false);
+                        }
+                    }
+                }
+
+                var ajaxEditUnSuccessRTM = function (data) {
+                    if (data.status == "true") {
+                        alert(data.message);
+                        window.location.reload(false);
+                    } else {
+                        if (data.message == "refresh") {
+                            window.location.reload(false);
+                        } else {
+                            alert(data.message);
+                            window.location.reload(false);
+                        }
+                    }
+                    //$("#module_box").load(" #module_box > *");
+                    //$('#editModule').modal('hide');
+                }
+
+                function delrtm(Name, ID, MID) {
+                    //debugger;
+                    var ans = confirm("Are you sure you want to delete " + Name + " ? ");
+                    if (ans) {
+                        $.ajax({
+                            url: "/RTM/Delete_RTM",
+                            type: "POST",
+                            dataType: "json",
+                            data: { 'id': ID, 'rtm_data': Name, 'mid': MID },
+                            success: function (result) {
+                                if (result.status == "true") {
+                                    alert(result.message);
+                                } else {
+                                    alert(result.message);
+                                }
+                                //$("#module_box").load(" #module_box > *");
+                                window.location.reload(false);
+                            },
+                            error: function (jqXHR, exception) {
+                                var msg = '';
+                                if (jqXHR.status === 0) {
+                                    msg = 'Not connect.\n Verify Network.';
+                                } else if (jqXHR.status == 404) {
+                                    msg = 'Requested page not found. [404]';
+                                } else if (jqXHR.status == 500) {
+                                    msg = 'Internal Server Error [500].';
+                                } else if (exception === 'parsererror') {
+                                    msg = 'Requested JSON parse failed.';
+                                } else if (exception === 'timeout') {
+                                    msg = 'Time out error.';
+                                } else if (exception === 'abort') {
+                                    msg = 'Ajax request aborted.';
+                                } else {
+                                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                                }
+                                alert(msg);
+                                window.location.reload(false);
+                            }
+                        });
+                    }
+                }
+
+                var navbar_name = document.getElementById("navbar-brand");
+                    navbar_name.innerHTML = "@ViewBag.MName";
+
+
+                const div = document.createElement('div');
+
+                div.className = 'row';
+
+                div.innerHTML = `
+                                <div class="collapse navbar-collapse" id="navbarNav">
+                                    <ul class="navbar-nav">
+                                        <li class="nav-item ">
+                                            @Html.ActionLink("RTM", "RTM", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>
+                                        <li class="nav-item">
+                                            @Html.ActionLink("Test Scenario", "Display_Factors_Items","Factors", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                        </li>
+                                         <li class="nav-item active">
+                                           @Html.ActionLink("Test Case", "Display_TestCase", "TestCase", new { id = @ViewBag.Module_id, module_name = @ViewBag.MName },new { @class= "nav-link" })
+                                         </li>
+                                    </ul>
+                                </div>
+                                `;
+
+                document.getElementById('navbar').appendChild(div);
+
+
+
+
+
+    </script>
+
+}
+
